@@ -8,6 +8,7 @@
 
     "fire_bind": "=",
     "weapon_swap_key": "-",
+    "weapon_ads_hold_bind": "j",
     "reload_bind": "r",
     "end_bind": "[",
     "start_bind": "]",
