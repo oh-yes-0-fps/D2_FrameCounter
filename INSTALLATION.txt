@@ -1,8 +1,0 @@
-
-#all
-pip install opencv-python
-
-
-#reload and swap speed
-pip install mss
-pip install keyboard

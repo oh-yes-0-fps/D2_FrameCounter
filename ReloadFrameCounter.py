@@ -4,10 +4,18 @@ from mss import mss
 import numpy as np
 import time
 
-#CONFIG VARIABLES
-ALPHA_THRSHOLD = 100
-SCREEN_WIDTH_PX = 2560
-SCREEN_HEIGHT_PX = 1440
+
+with open("config.json", "r") as f:
+    import json
+    config = json.load(f)
+    ALPHA_THRSHOLD = config["alphaThreshold"]
+    SCREEN_WIDTH_PX = config["screenWidth"]
+    SCREEN_HEIGHT_PX = config["screenHeight"]
+
+    fire_bind = config["fire_bind"]
+    start_bind = config["start_bind"]
+    end_bind = config["end_bind"]
+    reload_bind = config["reload_bind"]
 
 
 sct = mss()
@@ -24,21 +32,21 @@ time_taken = 0
 
 ammo_time = 0
 
-print("Press [ to start, ] to stop\n",
-      "Have alternate shoot bound to equals(=)")
+print(f"Press {start_bind} to start, {end_bind} to stop\n",
+      f"Have alternate shoot bound to {fire_bind}")
 while True:
-    if keyboard.is_pressed(']'):
-        keyboard.send('=', do_press=False)
+    if keyboard.is_pressed(end_bind):
+        keyboard.send(fire_bind, do_press=False)
         break
-    if keyboard.is_pressed('['):
-        keyboard.send('=')#fire
-        keyboard.send('r')#reload
+    if keyboard.is_pressed(start_bind):
+        keyboard.send(fire_bind)#fire
+        keyboard.send(reload_bind)#reload
         start_time = time.time()
         ACTIVATED = True
         has_ammo_counter = False
         needs_ammo_counter = True
         ammo_time = 0
-        keyboard.send('=', do_release=False)#hold fire
+        keyboard.send(fire_bind, do_release=False)#hold fire
         time.sleep(0.66)#bullet hole luminance stays for a bit
         continue
     if ACTIVATED:
@@ -60,7 +68,7 @@ while True:
         avg_luminosity = np.average(frame)
         if avg_luminosity > ALPHA_THRSHOLD:
             time_taken = time.time() - start_time
-            keyboard.send('=', do_press=False)
+            keyboard.send(fire_bind, do_press=False)
             print(f"Reload Time: {round(time_taken-(1/100),4)}s")
             print(f"Percent for ammo {(ammo_time/(time_taken-(1/100)))*100}%")
             ACTIVATED = False

@@ -1,10 +1,18 @@
 {
+
+    "screenHeight": 1440,
+    "screenWidth": 2560,
+
     "heightOffset": 617,
     "widthOffset": 333,
 
-    "fire_key": "=",
+    "fire_bind": "=",
     "weapon_swap_key": "-",
-    "reload_key": "r",
-    "interupt_script_key": "0",
+    "reload_bind": "r",
+    "end_bind": "[",
+    "start_bind": "]",
+
+    "alphaThreshold": 100,
+
     "reload_time_after_handling": 3
 }
