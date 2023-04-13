@@ -51,6 +51,8 @@ while True:
         continue
     if ACTIVATED:
         frame = np.array(sct.grab(crosshair_bounds))
+        # cv2.imshow("frame", frame)
+        # cv2.waitKey(120)
         if time.time() - start_time > 0.1 and not has_ammo_counter:
             ammo_counter = np.array(sct.grab(ammo_bounds))
             has_ammo_counter = True
@@ -73,4 +75,5 @@ while True:
             print(f"Percent for ammo {(ammo_time/(time_taken-(1/100)))*100}%")
             ACTIVATED = False
             time.sleep(0.2)
+keyboard.send(fire_bind, do_press=False)
 
