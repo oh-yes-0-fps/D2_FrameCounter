@@ -1,4 +1,10 @@
 {
-    "heightOffset": 594,
-    "widthOffset": 379
+    "heightOffset": 617,
+    "widthOffset": 333,
+
+    "fire_key": "=",
+    "weapon_swap_key": "-",
+    "reload_key": "r",
+    "interupt_script_key": "0",
+    "reload_time_after_handling": 3
 }

@@ -1,0 +1,10 @@
+#ignore anything in frame_results folder
+frame_results/*
+
+#ignore any mp4
+*.mp4
+
+#include a test.mp4
+!test.mp4
+
+test.py
