@@ -143,8 +143,14 @@ else:
             split_inp = inp.split("t")
             aa = int(split_inp[0])
             targeting_mods = int(split_inp[1])
-        elif not inp.isdigit():
-            print("invalid input")
+        elif inp == "ls":
+            with open(f"aa_frame_data.json", "r") as f:
+                jdata: dict[str, dict] = json.load(f)
+            for a in jdata:
+                output = f"{a}: "
+                output += f"mods: {jdata[a].get('targeting_mods_tested', [])}"
+                output += f", adjuster: {jdata[a].get('adjuster_mod', False)}"
+                print(output)
             continue
         else:
             aa = int(inp)
@@ -154,6 +160,7 @@ else:
             jdata.get(f"{aa}", {"data_t0": {}, "data_t1": {},
                                 "data_t2": {}, "data_t3": {}, })[f"data_t{targeting_mods}"] = {}
             continue
+        
         result = get_normalized_reticle_shading(get_screenshot())
         with open(f"aa_frame_data.json", "r") as f:
             jdata: dict[str, dict] = json.load(f)
