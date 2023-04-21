@@ -1,5 +1,7 @@
 #ignore anything in frame_results folder
 frame_results/*
+*.csv
+aa_frame_data_fps.json
 
 #ignore any mp4
 *.mp4
