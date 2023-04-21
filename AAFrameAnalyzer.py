@@ -146,7 +146,9 @@ else:
         elif inp == "ls":
             with open(f"aa_frame_data.json", "r") as f:
                 jdata: dict[str, dict] = json.load(f)
-            for a in jdata:
+            lst = list(jdata.keys())
+            lst.sort()
+            for a in lst:
                 output = f"{a}: "
                 output += f"mods: {jdata[a].get('targeting_mods_tested', [])}"
                 output += f", adjuster: {jdata[a].get('adjuster_mod', False)}"
