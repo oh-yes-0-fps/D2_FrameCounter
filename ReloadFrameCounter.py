@@ -20,7 +20,10 @@ with open("config.json", "r") as f:
 
 sct = mss()
 
-crosshair_bounds = (int(SCREEN_WIDTH_PX*0.475), int(SCREEN_HEIGHT_PX*0.475), int(SCREEN_WIDTH_PX*0.525), int(SCREEN_HEIGHT_PX*0.525))
+PERCENT_FROM_CENTER_OF_SCREEN = 0.05
+
+scl = PERCENT_FROM_CENTER_OF_SCREEN/2.0
+crosshair_bounds = (int(SCREEN_WIDTH_PX*(0.5-scl)), int(SCREEN_HEIGHT_PX*(0.5-scl)), int(SCREEN_WIDTH_PX*(0.5+scl)), int(SCREEN_HEIGHT_PX*(0.5+scl)))
 ammo_bounds = (int(SCREEN_WIDTH_PX*0.215), int(SCREEN_HEIGHT_PX*0.85), int(SCREEN_WIDTH_PX*0.27), int(SCREEN_HEIGHT_PX*0.88))
 
 ACTIVATED = False

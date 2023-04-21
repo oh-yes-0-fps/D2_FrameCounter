@@ -24,7 +24,7 @@ sct = mss()
 # bounds = (163, 153, 182, 176)
 # change from 1440p to screen size relative
 bounds = (int(SCREEN_WIDTH_PX*0.0636), int(SCREEN_HEIGHT_PX*0.106),
-          int(SCREEN_WIDTH_PX*0.075), int(SCREEN_HEIGHT_PX*0.118))
+        int(SCREEN_WIDTH_PX*0.075), int(SCREEN_HEIGHT_PX*0.118))
 
 ads_times = []
 
