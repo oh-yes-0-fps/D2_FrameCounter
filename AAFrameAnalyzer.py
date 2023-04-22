@@ -105,6 +105,14 @@ while True:
     targeting_mods = 0
     if inp == "exit":
         exit()
+    if "del" in inp:
+        with open(FILE_NAME, "r") as f:
+            jdata: dict[str, dict] = json.load(f)
+        aa = inp.removeprefix("del ")
+        del jdata[aa]
+        with open(FILE_NAME, "w") as f:
+            json.dump(jdata, f)
+        continue
     if "a" in inp:
         adjuster_mod = True
         inp = inp.replace("a", "")
@@ -122,15 +130,10 @@ while True:
             output += f"mods: {jdata[a].get('targeting_mods_tested', [])}"
             output += f", adjuster: {jdata[a].get('adjuster_mod', False)}"
             print(output)
+        print(f"total: {len(lst)}")
         continue
     else:
         aa = int(inp)
-    if "del" in inp:
-        with open(FILE_NAME, "r") as f:
-            jdata: dict[str, dict] = json.load(f)
-        jdata.get(f"{aa}", {"data_t0": {}, "data_t1": {},
-                            "data_t2": {}, "data_t3": {}, })[f"data_t{targeting_mods}"] = {}
-        continue
     result_h = get_normalized_reticle_shading(get_screenshot(), True)
     result_v = get_normalized_reticle_shading(get_screenshot(), False)
     with open(FILE_NAME, "r") as f:
