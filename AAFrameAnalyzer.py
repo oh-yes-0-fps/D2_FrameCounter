@@ -4,7 +4,7 @@ from mss import mss
 import numpy as np
 # import time
 
-FILE_NAME = "aa_frame_data_fps.json"
+FILE_NAME= "aa_frame_data_fps.json"
 RENDER_RESOLUTION = 200
 
 
@@ -44,6 +44,14 @@ def get_verticle_in_matrix(matrix: np.ndarray, pixel_offset: int):
 def get_horizontal_in_matrix(matrix: np.ndarray, pixel_offset: int):
     return matrix[matrix.shape[0]//2 + pixel_offset, :]
 
+def get_angle_in_matrix(matrix: np.ndarray, angle: int):
+    # angle can be 0 - 179
+    # angle 0 is the bottom of the screen
+    # angle 90 is the right of the screen
+    # get all the pixels in the matrix that are in a line at the given angle
+    # return a 1d array of the pixels
+    if angle == 0:
+        
 
 def get_color_from_pixel_array(pixel_matrix: np.ndarray, color_idx: int):
     return pixel_matrix[:, color_idx]
