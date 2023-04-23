@@ -7,7 +7,7 @@ import cv2
 # import time
 
 
-FILE_NAME = "aa_frame_data_hedrons.json"
+FILE_NAME = "aa_frame_data_shotguns.json"
 RENDER_RESOLUTION = 200
 
 

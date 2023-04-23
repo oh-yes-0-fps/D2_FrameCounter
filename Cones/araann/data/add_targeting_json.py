@@ -2,7 +2,7 @@ import json
 
 with open("aa_frame_data_fps.json", "r") as f:
     fps_data: dict[str, dict] = json.load(f)
-with open("aa_frame_data_harm.json", "r") as f:
+with open("aa_frame_data_shotguns.json", "r") as f:
     harm_data: dict[str, dict] = json.load(f)
 
 merged_data = {}
@@ -46,5 +46,5 @@ for aa in harm_data:
 
     
 
-with open("aa_frame_data_harm_combined.json", "w") as f:
+with open("aa_frame_data_shotgun_combined2.json", "w") as f:
     json.dump(merged_data, f)
