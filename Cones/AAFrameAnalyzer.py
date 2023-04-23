@@ -7,7 +7,7 @@ import cv2
 # import time
 
 
-FILE_NAME = "aa_frame_data_hedrons.json"
+FILE_NAME = "./Cones/aa_frame_data_scout_fps.json"
 RENDER_RESOLUTION = 200
 
 
@@ -24,7 +24,6 @@ class Direction(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
     DIAGONAL = 2
-DIRECTION = Direction.VERTICAL
 
 # pixle offset from the middle most pixel of the axis
 PIXEL_OFFSET = 0
@@ -105,15 +104,15 @@ def get_normalized_reticle_shading(matrix: np.ndarray, direction: Direction, off
     pixel_map = get_first_half_of_matrix(_1d_matrix)
     color_map = list(get_color_from_pixel_array(pixel_map, rgb_idx()))
     #get highest value in color map
-    max_val = max(color_map)
+    max_val_output = int(max(color_map))
     color_map = [max(x-background_color, 0.0) for x in color_map]
     max_val = max(color_map)
     if max_val == 0:
-        return color_map
+        raise Exception(f"No color found {direction}")
     full_screen_range = SCREEN_WIDTH_PX/2
     color_map = [(x/max_val, (len(color_map) - i)/full_screen_range)
                  for i, x in enumerate(color_map)]
-    return list(color_map), max_val
+    return (list(color_map), max_val_output)
 
 def get_screenshot() -> np.ndarray:
     return np.array(sct.grab(crosshair_bounds)) # type: ignore
@@ -158,9 +157,10 @@ while True:
     else:
         aa = int(inp)
     screenshot = get_screenshot()
-    result_h, max_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL, PIXEL_OFFSET)
-    result_v, max_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL, PIXEL_OFFSET)
-    result_d, max_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL, PIXEL_OFFSET)
+    cv2.imwrite("test.png", screenshot)
+    result_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL, PIXEL_OFFSET)
+    result_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL, PIXEL_OFFSET)
+    result_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL, PIXEL_OFFSET)
 
     with open(FILE_NAME, "r") as f:
         jdata: dict[str, dict] = json.load(f)
@@ -185,8 +185,8 @@ while True:
     with open(FILE_NAME, "r") as f:
         jdata: dict[str, dict] = json.load(f)
     info[f"data_t{targeting_mods}"] = {
-        "horizontal": result_h, "vertical": result_v, "diagonal": result_d,
-        "horizontal_peak": max_h, "vertical_peak": max_v, "diagonal_peak": max_d}
+        "horizontal": result_h[0], "vertical": result_v[0], "diagonal": result_d[0],
+        "horizontal_peak": result_h[1], "vertical_peak": result_v[1], "diagonal_peak": result_d[1],}
     jdata[f"{aa}"] = info
     with open(FILE_NAME, "w") as f:
         json.dump(jdata, f)
