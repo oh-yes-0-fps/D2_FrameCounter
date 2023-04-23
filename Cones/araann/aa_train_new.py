@@ -3,7 +3,7 @@ import tensorflow as tf
 import json
 import os
 FILE_NAME = "data/aa_frame_data_harm_combined.json"
-TRAIN = 'aa'
+TRAIN = 'ar_aa'
 DIRECTION = 'horizontal'
 
 with open(FILE_NAME, "r") as f:
@@ -47,7 +47,7 @@ model = tf.keras.Sequential([
 model.compile(optimizer='Adagrad', loss='mae')  # Using stochastic gradient descent optimizer and mean squared error loss
 
 # Train the model
-model.fit(X_train, y_train, epochs=10000, batch_size=1, callbacks=[cp_callback])
+model.fit(X_train, y_train, epochs=3000, batch_size=1,)
 
-model.save('models/ar_'+TRAIN)
+model.save('models/'+TRAIN)
 
