@@ -2,8 +2,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 import keyboard
+import cv2
 from mss import mss
-FILE_NAME = 'models/ar_aa'
+FILE_NAME = '.\\Cones\\araann\\models\\ar_aa'
 RENDER_RESOLUTION = 200
 SCREEN_HEIGHT_PX = 2160
 SCREEN_WIDTH_PX = 3840
@@ -85,13 +86,16 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
 def get_screenshot() -> np.ndarray:
     return np.array(sct.grab(crosshair_bounds)) # type: ignore
 
+def get_image() -> np.ndarray:
+    return cv2.imread("test.png")
+
 model: tf.keras.Sequential = tf.keras.models.load_model(FILE_NAME) # type: ignore
 
 while True:
     if keyboard.is_pressed(BIND):
         buffer = []
         try:
-            for x in get_normalized_reticle_shading(get_screenshot(), True):
+            for x in get_normalized_reticle_shading(get_image(), True):
                 buffer.append(x[0])
         except Exception as e:
             print(e)

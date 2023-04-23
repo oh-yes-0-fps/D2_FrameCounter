@@ -4,6 +4,7 @@ import keyboard
 from mss import mss
 import numpy as np
 import cv2
+from pyscreeze import screenshot
 # import time
 
 
@@ -156,8 +157,8 @@ while True:
         continue
     else:
         aa = int(inp)
-    screenshot = get_screenshot()
-    cv2.imwrite("test.png", screenshot)
+    # screenshot = get_screenshot()
+    screenshot = cv2.imread("tiger_release_final_20230423_171308.png")
     result_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL, PIXEL_OFFSET)
     result_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL, PIXEL_OFFSET)
     result_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL, PIXEL_OFFSET)

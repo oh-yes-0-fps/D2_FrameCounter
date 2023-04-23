@@ -20,9 +20,29 @@ def debug_screen():
     # make a red cross across the screen
     screen[screen.shape[0]//2-5:screen.shape[0]//2+5, :, :] = [0, 0, 255, 255]
     screen[:, screen.shape[1]//2-5:screen.shape[1]//2+5, :] = [0, 0, 255, 255]
+    #resive screen
+    # screen = cv2.resize(screen, (screen.shape[1]//4, screen.shape[0]//4))
 
-    cv2.imshow("screen", screen)
-    cv2.waitKey(0)
+    #detect white rectangular blobs
+    params = cv2.SimpleBlobDetector_Params()
+    params.filterByArea = True
+    params.minArea = 20
+    params.maxArea = 1000
+    params.filterByCircularity = True
+    params.minCircularity = 0.1
+    params.maxCircularity = 1
+    params.filterByConvexity = False
+    params.filterByInertia = False
+    params.filterByColor = True
+    params.blobColor = 255
+    detector = cv2.SimpleBlobDetector_create(params)
+    keypoints = detector.detect(screen)
+    print(keypoints)
+    im_with_keypoints = cv2.drawKeypoints(screen, keypoints, np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+    im_with_keypoints = cv2.resize(im_with_keypoints, (im_with_keypoints.shape[1]//4, im_with_keypoints.shape[0]//4))
+    cv2.imshow("screen", im_with_keypoints)
+    cv2.waitKey(1)
 
 
 with open("config.json", "r") as f:
@@ -226,8 +246,13 @@ def test():
     sleep(1)
     end = get_triangle_theta()
     print(start-end)
-test()
+# test()
 
+while True:
+    debug_screen()
+    sleep(1)
+# debug_screen()
+# cv2.waitKey(0)
 
 # sleep(3)
 # test()
