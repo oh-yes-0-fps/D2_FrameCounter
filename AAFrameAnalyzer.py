@@ -82,7 +82,7 @@ def rgb_idx():
         raise Exception("Invalid desired color")
 
 
-def get_normalized_reticle_shading(matrix: np.ndarray, direction: Direction):
+def get_normalized_reticle_shading(matrix: np.ndarray, direction: Direction, offset: int):
 
     # get the 4 corners of the matrix and average the colors
     tl = matrix[0, 0]
@@ -96,11 +96,11 @@ def get_normalized_reticle_shading(matrix: np.ndarray, direction: Direction):
         raise Exception("Background is too bright")
 
     if direction == Direction.HORIZONTAL:
-        _1d_matrix = get_horizontal_in_matrix(matrix, PIXEL_OFFSET)
+        _1d_matrix = get_horizontal_in_matrix(matrix, offset)
     elif direction == Direction.VERTICAL:
-        _1d_matrix = get_verticle_in_matrix(matrix, PIXEL_OFFSET)
+        _1d_matrix = get_verticle_in_matrix(matrix, offset)
     else:
-        _1d_matrix = get_diagonal_in_matrix(matrix, PIXEL_OFFSET)
+        _1d_matrix = get_diagonal_in_matrix(matrix, offset)
     pixel_map = get_first_half_of_matrix(_1d_matrix)
     color_map = list(get_color_from_pixel_array(pixel_map, rgb_idx()))
     #get highest value in color map
@@ -157,9 +157,9 @@ while True:
     else:
         aa = int(inp)
     screenshot = get_screenshot()
-    result_h, max_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL)
-    result_v, max_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL)
-    result_d, max_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL)
+    result_h, max_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL, PIXEL_OFFSET)
+    result_v, max_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL, PIXEL_OFFSET)
+    result_d, max_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL, PIXEL_OFFSET)
 
     with open(FILE_NAME, "r") as f:
         jdata: dict[str, dict] = json.load(f)
