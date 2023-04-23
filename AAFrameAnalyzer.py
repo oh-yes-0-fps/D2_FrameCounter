@@ -6,7 +6,8 @@ import numpy as np
 import cv2
 # import time
 
-FILE_NAME= "aa_frame_data_fps.json"
+
+FILE_NAME = "aa_frame_data_hedrons.json"
 RENDER_RESOLUTION = 200
 
 

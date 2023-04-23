@@ -1,19 +1,14 @@
 {
-
-    "screenHeight": 1440,
-    "screenWidth": 2560,
-
+    "screenHeight": 2160,
+    "screenWidth": 3840,
     "heightOffset": 617,
     "widthOffset": 333,
-
     "fire_bind": "=",
     "weapon_swap_key": "-",
     "weapon_ads_hold_bind": "j",
     "reload_bind": "r",
     "end_bind": "[",
     "start_bind": "]",
-
     "alphaThreshold": 100,
-
     "reload_time_after_handling": 3
 }
