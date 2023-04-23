@@ -1,21 +1,14 @@
 import numpy as np
 import tensorflow as tf
-import json
-import os
+from tensorflow import keras
 import keyboard
 from mss import mss
-FILE_NAME = "aa_frame_data_harm_combined.json"
+FILE_NAME = 'models/ar_aa'
 RENDER_RESOLUTION = 200
+SCREEN_HEIGHT_PX = 2160
+SCREEN_WIDTH_PX = 3840
+BIND = "]"
 
-
-with open("config.json", "r") as f:
-    import json
-    config = json.load(f)
-    SCREEN_WIDTH_PX = config["screenWidth"]
-    SCREEN_HEIGHT_PX = config["screenHeight"]
-
-    start_bind = config["start_bind"]
-    end_bind = config["end_bind"]
 
 # HORIZONTAL = True  # if false will use vertical
 
@@ -70,8 +63,8 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
     bg_avg = np.average([tl, tr, bl, br], axis=0)
     background_color = bg_avg[rgb_idx()]
 
-    if background_color > 0:
-        raise Exception("Background is too bright")
+    #if background_color > 0:
+    #    raise Exception("Background is too bright")
 
     if horizontal:
         _1d_matrix = get_horizontal_in_matrix(matrix, PIXEL_OFFSET)
@@ -92,67 +85,23 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
 def get_screenshot() -> np.ndarray:
     return np.array(sct.grab(crosshair_bounds)) # type: ignore
 
-with open(FILE_NAME, "r") as f:
-    jdata: dict[str, dict] = json.load(f)
-
-
-lst = list(jdata.keys())
-#sort by string as int
-lst.sort(key=lambda x: int(x))
-
-aa_x = []
-pixels = []
-for aa in lst:
-    buffer = []
-    for x in jdata[aa]["data"]["horizontal"]:
-        buffer.append(x[0])
-    pixels.append(buffer)
-    aa_x.append(int(aa))
-
-
-
-
-
-X_train = np.array(pixels)
-# Generate a random numpy array and target value for training
-y_train = np.array(aa_x)  # Target value
-
-checkpoint_path = "ar_aa_nn/cp.ckpt"
-checkpoint_dir = os.path.dirname(checkpoint_path)
-
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                 save_weights_only=True,
-                                                 verbose=1)
-
-# Create a sequential model in TensorFlow
-model = tf.keras.Sequential([
-    tf.keras.layers.InputLayer(input_shape=(192,), dtype=tf.float32),  # Input layer with shape (192,)
-    tf.keras.layers.Dense(256, activation='relu'),  # Hidden layer with 256 neurons and ReLU activation
-    tf.keras.layers.Dense(128, activation='relu'),  # Hidden layer with 128 neurons and ReLU activation
-    tf.keras.layers.Dense(64, activation='relu'),  # Hidden layer with 64 neurons and ReLU activation
-    tf.keras.layers.Dense(1)  # Output layer with one output
-])
-
-
-# Compile the model
-model.compile(optimizer='Adagrad', loss='mae')  # Using stochastic gradient descent optimizer and mean squared error loss
-
-# Train the model
-model.fit(X_train, y_train, epochs=10000, batch_size=1, callbacks=[cp_callback])
-
-model.save('ar_aa_nn_model/ar_aa')
-
+model = tf.keras.models.load_model(FILE_NAME)
 
 while True:
-    if keyboard.is_pressed("]"):
+    if keyboard.is_pressed(BIND):
         buffer = []
-        for x in get_normalized_reticle_shading(get_screenshot(), True):
-            buffer.append(x[0])
+        try:
+            for x in get_normalized_reticle_shading(get_screenshot(), True):
+                buffer.append(x[0])
+        except Exception as e:
+            print(e)
+            continue
 # Generate a new numpy array of integers for prediction
         X_test = np.array(buffer) # Input array of shape (3, 192)
 #X_test = np.random.randint(0, 100, size=(3, 192), dtype=np.int32)  # Input array of shape (3, 192)
 
 # Predict using the trained model
+
         y_pred = model.predict(np.expand_dims(X_test,axis=0))
 
 # Print the predicted values
