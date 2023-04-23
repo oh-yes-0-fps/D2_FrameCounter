@@ -1,7 +1,9 @@
+from enum import Enum
 import os
 import keyboard
 from mss import mss
 import numpy as np
+import cv2
 # import time
 
 FILE_NAME= "aa_frame_data_fps.json"
@@ -17,7 +19,11 @@ with open("config.json", "r") as f:
     start_bind = config["start_bind"]
     end_bind = config["end_bind"]
 
-# HORIZONTAL = True  # if false will use vertical
+class Direction(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
+    DIAGONAL = 2
+DIRECTION = Direction.VERTICAL
 
 # pixle offset from the middle most pixel of the axis
 PIXEL_OFFSET = 0
@@ -44,14 +50,18 @@ def get_verticle_in_matrix(matrix: np.ndarray, pixel_offset: int):
 def get_horizontal_in_matrix(matrix: np.ndarray, pixel_offset: int):
     return matrix[matrix.shape[0]//2 + pixel_offset, :]
 
-def get_angle_in_matrix(matrix: np.ndarray, angle: int):
-    # angle can be 0 - 179
-    # angle 0 is the bottom of the screen
-    # angle 90 is the right of the screen
-    # get all the pixels in the matrix that are in a line at the given angle
-    # return a 1d array of the pixels
-    if angle == 0:
-        
+def get_diagonal_in_matrix(matrix: np.ndarray, pixel_offset: int):
+    new_matrix = []
+    for i in range(matrix.shape[0]):
+        try:
+            new_matrix.append(matrix[matrix.shape[0]-i-1, i + pixel_offset])
+        except IndexError:
+            pass
+    new_matrix = np.array(new_matrix)
+    len_diff = matrix.shape[0] - new_matrix.shape[0]
+    #cutoff half of len diff from each side
+    new_matrix = new_matrix[len_diff//2:matrix.shape[0] - len_diff//2]
+    return new_matrix
 
 def get_color_from_pixel_array(pixel_matrix: np.ndarray, color_idx: int):
     return pixel_matrix[:, color_idx]
@@ -72,7 +82,8 @@ def rgb_idx():
         raise Exception("Invalid desired color")
 
 
-def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
+def get_normalized_reticle_shading(matrix: np.ndarray, direction: Direction):
+
     # get the 4 corners of the matrix and average the colors
     tl = matrix[0, 0]
     tr = matrix[0, matrix.shape[1]-1]
@@ -84,12 +95,16 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
     if background_color > 0:
         raise Exception("Background is too bright")
 
-    if horizontal:
+    if direction == Direction.HORIZONTAL:
         _1d_matrix = get_horizontal_in_matrix(matrix, PIXEL_OFFSET)
-    else:
+    elif direction == Direction.VERTICAL:
         _1d_matrix = get_verticle_in_matrix(matrix, PIXEL_OFFSET)
+    else:
+        _1d_matrix = get_diagonal_in_matrix(matrix, PIXEL_OFFSET)
     pixel_map = get_first_half_of_matrix(_1d_matrix)
     color_map = list(get_color_from_pixel_array(pixel_map, rgb_idx()))
+    #get highest value in color map
+    max_val = max(color_map)
     color_map = [max(x-background_color, 0.0) for x in color_map]
     max_val = max(color_map)
     if max_val == 0:
@@ -97,8 +112,7 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
     full_screen_range = SCREEN_WIDTH_PX/2
     color_map = [(x/max_val, (len(color_map) - i)/full_screen_range)
                  for i, x in enumerate(color_map)]
-    return list(color_map)
-
+    return list(color_map), max_val
 
 def get_screenshot() -> np.ndarray:
     return np.array(sct.grab(crosshair_bounds)) # type: ignore
@@ -142,8 +156,11 @@ while True:
         continue
     else:
         aa = int(inp)
-    result_h = get_normalized_reticle_shading(get_screenshot(), True)
-    result_v = get_normalized_reticle_shading(get_screenshot(), False)
+    screenshot = get_screenshot()
+    result_h, max_h = get_normalized_reticle_shading(screenshot, Direction.HORIZONTAL)
+    result_v, max_v = get_normalized_reticle_shading(screenshot, Direction.VERTICAL)
+    result_d, max_d = get_normalized_reticle_shading(screenshot, Direction.DIAGONAL)
+
     with open(FILE_NAME, "r") as f:
         jdata: dict[str, dict] = json.load(f)
     t_mods = set(jdata.get(f"{aa}", {}).get("targeting_mods_tested", []))
@@ -167,7 +184,8 @@ while True:
     with open(FILE_NAME, "r") as f:
         jdata: dict[str, dict] = json.load(f)
     info[f"data_t{targeting_mods}"] = {
-        "horizontal": result_h, "vertical": result_v}
+        "horizontal": result_h, "vertical": result_v, "diagonal": result_d,
+        "horizontal_peak": max_h, "vertical_peak": max_v, "diagonal_peak": max_d}
     jdata[f"{aa}"] = info
     with open(FILE_NAME, "w") as f:
         json.dump(jdata, f)
