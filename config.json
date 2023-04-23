@@ -1,6 +1,6 @@
 {
-    "screenHeight": 2160,
-    "screenWidth": 3840,
+    "screenHeight": 1440,
+    "screenWidth": 2560,
     "heightOffset": 617,
     "widthOffset": 333,
     "fire_bind": "=",
