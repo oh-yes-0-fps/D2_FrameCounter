@@ -85,7 +85,7 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
 def get_screenshot() -> np.ndarray:
     return np.array(sct.grab(crosshair_bounds)) # type: ignore
 
-model = tf.keras.models.load_model(FILE_NAME)
+model: tf.keras.Sequential = tf.keras.models.load_model(FILE_NAME) # type: ignore
 
 while True:
     if keyboard.is_pressed(BIND):
