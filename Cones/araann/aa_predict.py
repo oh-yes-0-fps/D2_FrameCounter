@@ -63,8 +63,8 @@ def get_normalized_reticle_shading(matrix: np.ndarray, horizontal: bool):
     bg_avg = np.average([tl, tr, bl, br], axis=0)
     background_color = bg_avg[rgb_idx()]
 
-    #if background_color > 0:
-    #    raise Exception("Background is too bright")
+    if background_color > 0:
+        raise Exception("Background is too bright")
 
     if horizontal:
         _1d_matrix = get_horizontal_in_matrix(matrix, PIXEL_OFFSET)
