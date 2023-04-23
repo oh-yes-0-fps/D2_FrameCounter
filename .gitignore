@@ -1,14 +1,1 @@
-#ignore anything in frame_results folder
-frame_results/*
 *.csv
-# aa_frame_data_fps.json
-# zmatplot.py
-
-#ignore any mp4
-*.mp4
-
-#include a test.mp4
-!test.mp4
-
-# test2.py
-# test.py
