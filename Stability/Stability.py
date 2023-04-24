@@ -11,250 +11,243 @@ import mouse
 
 sct = mss()
 
-
-def debug_screen():
-    screen = np.array(sct.grab((0, 0, SCREEN_WIDTH_PX, SCREEN_HEIGHT_PX)))
-    screen[screen[:, :, 0] < 248] = [0, 0, 0, 0]
-    screen[screen[:, :, 2] < 150] = [0, 0, 0, 0]
-    screen[screen[:, :, 1] < 150] = [0, 0, 0, 0]
-    # make a red cross across the screen
-    screen[screen.shape[0]//2-5:screen.shape[0]//2+5, :, :] = [0, 0, 255, 255]
-    screen[:, screen.shape[1]//2-5:screen.shape[1]//2+5, :] = [0, 0, 255, 255]
-    #resive screen
-    # screen = cv2.resize(screen, (screen.shape[1]//4, screen.shape[0]//4))
-
-    #detect white rectangular blobs
-    params = cv2.SimpleBlobDetector_Params()
-    params.filterByArea = True
-    params.minArea = 20
-    params.maxArea = 1000
-    params.filterByCircularity = True
-    params.minCircularity = 0.1
-    params.maxCircularity = 1
-    params.filterByConvexity = False
-    params.filterByInertia = False
-    params.filterByColor = True
-    params.blobColor = 255
-    detector = cv2.SimpleBlobDetector_create(params)
-    keypoints = detector.detect(screen)
-    print(keypoints)
-    im_with_keypoints = cv2.drawKeypoints(screen, keypoints, np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-    im_with_keypoints = cv2.resize(im_with_keypoints, (im_with_keypoints.shape[1]//4, im_with_keypoints.shape[0]//4))
-    cv2.imshow("screen", im_with_keypoints)
-    cv2.waitKey(1)
-
-
 with open("config.json", "r") as f:
     import json
     config = json.load(f)
     SCREEN_WIDTH_PX = config["screenWidth"]
     SCREEN_HEIGHT_PX = config["screenHeight"]
 
-    # start_bind = config["start_bind"]
-    # end_bind = config["end_bind"]
+class MovingAveragePoint:
+    def __init__(self, entries) -> None:
+        self.entries = entries
+        self.points = []
 
+    def add_point(self, point):
+        self.points.append(point)
+        if len(self.points) > self.entries:
+            self.points.pop(0)
+    
+    def get_average(self):
+        return (sum([x[0] for x in self.points])/len(self.points), sum([x[1] for x in self.points])/len(self.points))
+
+    def get_average_int(self):
+        return (int(sum([x[0] for x in self.points])/len(self.points)), int(sum([x[1] for x in self.points])/len(self.points)))
+
+    def debounce(self, point):
+        if abs(point[0] - self.points[-1][0]) < 0.01 and abs(point[1] - self.points[-1][1]) < 0.01:
+            return True
+        return False
+
+    def clear(self):
+        self.points = []
+
+    def samples(self):
+        return len(self.points)
+
+def sort_points(keypoints) -> tuple:
+    points = []
+    for point in keypoints:
+        points.append((point.pt[0], point.pt[1]))
+    points.sort(key=lambda x: x[0])
+    return tuple(points)
+
+def point_pos_cauld(debug = False):
+    screen = np.array(sct.grab((0, 0, SCREEN_WIDTH_PX, SCREEN_HEIGHT_PX)))
+    screen[screen[:, :, 0] < 230] = [0, 0, 0, 0]
+    screen[screen[:, :, 2] < 230] = [0, 0, 0, 0]
+    screen[screen[:, :, 1] < 230] = [0, 0, 0, 0]
+
+    screen[screen[:, :, 0] > 20] = [255, 255, 255, 255]
+    screen[screen[:, :, 2] > 20] = [255, 255, 255, 255]
+    screen[screen[:, :, 1] > 20] = [255, 255, 255, 255]
+
+    #detect white rectangular blobs
+    params = cv2.SimpleBlobDetector_Params()
+    params.filterByArea = True
+    params.minArea = 1
+    params.maxArea = 2500
+    params.filterByCircularity = False
+    # params.minCircularity = 0.5
+    # params.maxCircularity = 100
+    params.filterByConvexity = False
+    params.filterByInertia = False
+    params.filterByColor = True
+    params.blobColor = 255
+    params.minDistBetweenBlobs = 100
+
+    detector = cv2.SimpleBlobDetector_create(params)
+    keypoints = detector.detect(screen)
+
+    if debug:
+        im_with_keypoints = cv2.drawKeypoints(screen, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        im_with_keypoints = cv2.resize(im_with_keypoints, (int(SCREEN_WIDTH_PX/3), int(SCREEN_HEIGHT_PX/3)))
+        cv2.imshow("Keypoints", im_with_keypoints)
+        cv2.waitKey(1)
+
+    return sort_points(keypoints)
+
+def point_pos_jav(debug = False):
+    screen = np.array(sct.grab((0, 0, SCREEN_WIDTH_PX, SCREEN_HEIGHT_PX)))
+    screen[screen[:, :, 0] < 245] = [0, 0, 0, 0]
+    screen[screen[:, :, 2] < 175] = [0, 0, 0, 0]
+    screen[screen[:, :, 1] < 180] = [0, 0, 0, 0]
+
+    screen[screen[:, :, 0] > 20] = [255, 255, 255, 255]
+    screen[screen[:, :, 2] > 20] = [255, 255, 255, 255]
+    screen[screen[:, :, 1] > 20] = [255, 255, 255, 255]
+
+    #detect white rectangular blobs
+    params = cv2.SimpleBlobDetector_Params()
+    params.filterByArea = True
+    params.minArea = 100
+    params.maxArea = 2500
+    params.filterByCircularity = False
+    # params.minCircularity = 0.5
+    # params.maxCircularity = 100
+    params.filterByConvexity = False
+    params.filterByInertia = False
+    params.filterByColor = True
+    params.blobColor = 255
+    params.minDistBetweenBlobs = screen.shape[1]//5
+
+    detector = cv2.SimpleBlobDetector_create(params)
+    keypoints = detector.detect(screen)
+
+    if debug:
+        im_with_keypoints = cv2.drawKeypoints(screen, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        im_with_keypoints = cv2.resize(im_with_keypoints, (int(SCREEN_WIDTH_PX/3), int(SCREEN_HEIGHT_PX/3)))
+        cv2.imshow("Keypoints", im_with_keypoints)
+        cv2.waitKey(1)
+
+    return sort_points(keypoints)
 
 def normalize_point(point: tuple[int, int]) -> tuple[float, float]:
     return (point[0]/SCREEN_WIDTH_PX, point[1]/SCREEN_HEIGHT_PX)
 
 
-def get_point_pos() -> tuple[tuple[int, int], tuple[int, int]]:
-    # capture screen 0
-    screen = np.array(sct.grab((0, 0, SCREEN_WIDTH_PX, SCREEN_HEIGHT_PX)))
-
-    og_screen = screen.copy()
-
-    # split screen into quarters
-    tl_qt = screen[:screen.shape[0]//2, :screen.shape[1]//2]
-    tr_qt = screen[:screen.shape[0]//2, screen.shape[1]//2:]
-
-    def get_light_center(qt: np.ndarray, offset: tuple[int, int]):
-        # screen goes array[y, x, color]
-        try:
-            qt_c = qt.copy()
-            qt_c[qt_c[:, :, 0] < 248] = [0, 0, 0, 0]
-            qt_c[qt_c[:, :, 2] < 150] = [0, 0, 0, 0]
-            qt_c[qt_c[:, :, 1] < 150] = [0, 0, 0, 0]
-            # move down the screen until the row has blue pixels
-            y = 0
-            while np.all(qt_c[y, :, :] == [0, 0, 0, 0]):
-                y += 1
-            # move up the screen until the row has blue pixels
-            y2 = min(y + qt_c.shape[0]//10, qt_c.shape[0]-1)
-            while np.all(qt_c[y2, :, :] == [0, 0, 0, 0]):
-                y2 -= 1
-        except:
-            quadrant = ""
-            if offset == (0, 0):
-                quadrant = "top left"
-            elif offset == (screen.shape[1]//2, 0):
-                quadrant = "top right"
-            elif offset == (0, screen.shape[0]//2):
-                quadrant = "bottom left"
-            elif offset == (screen.shape[1]//2, screen.shape[0]//2):
-                quadrant = "bottom right"
-            print(f"Error in {quadrant} quadrant for y")
-            debug_screen()
-            return offset
-
-        try:
-            qt_c = qt.copy()
-            qt_c[qt_c[:, :, 0] < 248] = [0, 0, 0, 0]
-            qt_c[qt_c[:, :, 2] < 150] = [0, 0, 0, 0]
-            qt_c[qt_c[:, :, 1] < 150] = [0, 0, 0, 0]
-            # move right until the column has blue pixels
-            x = 0
-            while np.all(qt_c[:, x, :] == [0, 0, 0, 0]):
-                x += 1
-            # move left until the column has blue pixels
-            x2 = min(x + qt_c.shape[0]//5, qt_c.shape[1]-1)
-            while np.all(qt_c[:, x2, :] == [0, 0, 0, 0]) or np.all(qt_c[:, min(x2+5, qt_c.shape[1]-1), :] == [0, 0, 0, 0]):
-                x2 -= 1
-        except:
-            quadrant = ""
-            if offset == (0, 0):
-                quadrant = "top left"
-            elif offset == (screen.shape[1]//2, 0):
-                quadrant = "top right"
-            elif offset == (0, screen.shape[0]//2):
-                quadrant = "bottom left"
-            elif offset == (screen.shape[1]//2, screen.shape[0]//2):
-                quadrant = "bottom right"
-            print(f"Error in {quadrant} quadrant for x")
-            debug_screen()
-            return offset
-
-        # return the center of the blue pixels
-        return offset[0]+(x + x2)//2, offset[1]+(y + y2)//2
-
-    tl_x, tl_y = get_light_center(tl_qt, (0, 0))
-    tr_x, tr_y = get_light_center(tr_qt, (screen.shape[1]//2, 0))
-
-    tl_point = (tl_x, tl_y)
-    tr_point = (tr_x, tr_y)
-    # cn_point = (screen.shape[1]//2, screen.shape[0]//2)
-    return tl_point, tr_point
 
 
-def mouse_lineup():
-    points = get_point_pos()
-    while abs(points[0][1] - points[1][1]) > SCREEN_HEIGHT_PX//200:
-        print(abs(points[0][1] - points[1][1]))
-        if points[0][1] > points[1][1]:
-            print("mouse right")
+
+
+def test_3():
+    moving_average_1 = MovingAveragePoint(5)
+    moving_average_2 = MovingAveragePoint(5)
+    moving_average_3 = MovingAveragePoint(5)
+    while moving_average_1.samples() < 5:
+        sleep(0.1)
+        points = point_pos_cauld()
+        if len(points) < 3:
+            print("not enough points")
             sleep(0.1)
-        elif points[0][1] < points[1][1]:
-            print("mouse left")
-            sleep(0.1)
-        else:
-            print("done")
-            break
-        points = get_point_pos()
-        # clear terminal
-        # os.system("cls")
-
-
-def strafe_lineup():
-    diff = 100
-    while abs(diff) > SCREEN_WIDTH_PX//200:
-        tl_point, tr_point = get_point_pos()
-        tl_x = SCREEN_WIDTH_PX//2-tl_point[0]
-        tr_x = tr_point[0]-SCREEN_WIDTH_PX//2
-        diff = tl_x-tr_x
-        os.system("cls")
-        print(tl_point, tr_point)
-        if diff < 0:
-            keyboard.press("d")
-            sleep(0.80*(abs(diff)/SCREEN_WIDTH_PX)+0.03)
-            keyboard.release("d")
-        elif diff > 0:
-            keyboard.press("a")
-            sleep(0.80*(abs(diff)/SCREEN_WIDTH_PX)+0.03)
-            keyboard.release("a")
-        else:
-            break
-
-
-def forward_lineup():
-    diff = 100
-    wanted_y = SCREEN_HEIGHT_PX//2-SCREEN_HEIGHT_PX//15
-    while abs(diff) > SCREEN_HEIGHT_PX//200:
-        tl_point, tr_point = get_point_pos()
-        os.system("cls")
-        print(tl_point, tr_point)
-        y = int(tl_point[1] + tr_point[1])//2
-        diff = y - wanted_y
-        if diff < 0:
-            keyboard.press("s")
-            sleep(0.60*(abs(diff)/SCREEN_HEIGHT_PX)+0.02)
-            keyboard.release("s")
-        elif diff > 0:
-            keyboard.press("w")
-            sleep(0.60*(abs(diff)/SCREEN_HEIGHT_PX)+0.02)
-            keyboard.release("w")
-        else:
-            break
-
-
-def get_triangle_theta():
-    tl_point, tr_point = get_point_pos()
-    cn_point = (SCREEN_WIDTH_PX//2, SCREEN_HEIGHT_PX//2)
-
-    # adjusts for left and right error
-    tl_x = SCREEN_WIDTH_PX//2-tl_point[0]
-    tr_x = tr_point[0]-SCREEN_WIDTH_PX//2
-    x = (tl_x-tr_x)
-    cn_point = (SCREEN_WIDTH_PX//2-x, SCREEN_HEIGHT_PX//2)
-
-    # point 1 is the top left point
-    # point 2 is the center point
-    # point 3 is the top right point
-    # get angle of points 1->2->3
-    dist_1_2 = np.sqrt((tl_point[0]-cn_point[0]) **
-                       2 + (tl_point[1]-cn_point[1])**2)
-    dist_2_3 = np.sqrt((tr_point[0]-cn_point[0]) **
-                       2 + (tr_point[1]-cn_point[1])**2)
-    dist_1_3 = np.sqrt((tl_point[0]-tr_point[0]) **
-                       2 + (tl_point[1]-tr_point[1])**2)
-    theta = np.arccos((dist_1_2**2 + dist_2_3**2 -
-                      dist_1_3**2)/(2*dist_1_2*dist_2_3))
-    theta = np.degrees(theta)
-    return theta
-
-
-# try:
-#     mouse_lineup()
-#     strafe_lineup()
-#     forward_lineup()
-# except:
-#     debug_screen()
-
-
-def test():
-    try:
-        mouse_lineup()
-        strafe_lineup()
-        forward_lineup()
-    except:
-        debug_screen()
-    start = get_triangle_theta()
-    # hold mouse left for 2/3 second
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+        moving_average_3.add_point(points[2])
+    print(
+        moving_average_1.get_average_int(),
+        moving_average_2.get_average_int(),
+        moving_average_3.get_average_int()
+    )
+    moving_average_1.clear()
+    moving_average_2.clear()
+    moving_average_3.clear()
     mouse.press(button="left")
     sleep(.5)
     mouse.release(button="left")
-    sleep(1)
-    end = get_triangle_theta()
-    print(start-end)
-# test()
+    for i in range(5):
+        sleep(0.1)
+        points = point_pos_cauld()
+        if len(points) < 3:
+            print("not enough points")
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+        moving_average_3.add_point(points[2])
+    def debouce(ma_1: MovingAveragePoint, ma_2: MovingAveragePoint, ma_3: MovingAveragePoint):
+        out = True
+        points = point_pos_cauld()
+        if len(points) < 3:
+            print("not enough points")
+            return False
+        if not ma_1.debounce(points[0]):
+            out = False
+        if not ma_2.debounce(points[1]):
+            out = False
+        if not ma_3.debounce(points[2]):
+            out = False
+        return out
+    while not debouce(moving_average_1, moving_average_2, moving_average_3):
+        sleep(0.1)
+        points = point_pos_cauld(True)
+        if len(points) < 3:
+            print("not enough points")
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+        moving_average_3.add_point(points[2])
+    print(
+        moving_average_1.get_average_int(),
+        moving_average_2.get_average_int(),
+        moving_average_3.get_average_int()
+    )
 
-while True:
-    debug_screen()
-    sleep(1)
-# debug_screen()
-# cv2.waitKey(0)
+def test_jav():
+    moving_average_1 = MovingAveragePoint(5)
+    moving_average_2 = MovingAveragePoint(5)
+    while moving_average_1.samples() < 5:
+        sleep(0.1)
+        points = point_pos_jav()
+        if len(points) < 2:
+            print("not enough points")
+            sleep(0.1)
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+    print(
+        moving_average_1.get_average_int(),
+        moving_average_2.get_average_int(),
+    )
+    moving_average_1.clear()
+    moving_average_2.clear()
+    mouse.press(button="left")
+    sleep(.5)
+    mouse.release(button="left")
+    for i in range(5):
+        sleep(0.1)
+        points = point_pos_jav()
+        if len(points) < 2:
+            print("not enough points")
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+    def debouce(ma_1: MovingAveragePoint, ma_2: MovingAveragePoint):
+        out = True
+        points = point_pos_jav()
+        if len(points) < 2:
+            print("not enough points")
+            return False
+        if not ma_1.debounce(points[0]):
+            out = False
+        if not ma_2.debounce(points[1]):
+            out = False
+        return out
+    while not debouce(moving_average_1, moving_average_2):
+        sleep(0.1)
+        points = point_pos_jav(True)
+        if len(points) < 2:
+            print("not enough points")
+            continue
+        moving_average_1.add_point(points[0])
+        moving_average_2.add_point(points[1])
+    print(
+        moving_average_1.get_average_int(),
+        moving_average_2.get_average_int(),
+    )
 
-# sleep(3)
-# test()
-# while True:
-#     print(get_point_pos())
+sleep(3)
+test_jav()
+
+
+
+
+

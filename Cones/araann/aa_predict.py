@@ -4,7 +4,7 @@ from tensorflow import keras
 import keyboard
 import cv2
 from mss import mss
-FILE_NAME = '.\\Cones\\araann\\models\\ar_aa'
+FILE_NAME = 'models/ar_aa'
 RENDER_RESOLUTION = 200
 SCREEN_HEIGHT_PX = 2160
 SCREEN_WIDTH_PX = 3840
