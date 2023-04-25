@@ -35,7 +35,7 @@ def __point_pos(screen: np.ndarray, debug = False):
 
     if debug:
         im_with_keypoints = cv2.drawKeypoints(screen, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        im_with_keypoints = cv2.resize(im_with_keypoints, (1280, 720))
+        im_with_keypoints = cv2.resize(im_with_keypoints, (im_with_keypoints.shape[1]//3, im_with_keypoints.shape[0]//3))
         cv2.imshow("Keypoints", im_with_keypoints)
         cv2.waitKey(1)
 
@@ -45,12 +45,12 @@ def test(screen_grabber: Callable[[], np.ndarray]) -> Tuple[Tuple[float, float],
     out = []
     moving_average_1 = MovingAveragePoint(5)
     moving_average_2 = MovingAveragePoint(5)
+    debug = False
     while moving_average_1.samples() < 5:
         sleep(0.1)
-        points = __point_pos(screen_grabber())
-        if len(points) < 2:
-            print("not enough points")
-            sleep(0.1)
+        points = __point_pos(screen_grabber(), debug)
+        if not ensure_count(points, 2):
+            debug = True
             continue
         moving_average_1.add_point(points[0])
         moving_average_2.add_point(points[1])
@@ -63,30 +63,29 @@ def test(screen_grabber: Callable[[], np.ndarray]) -> Tuple[Tuple[float, float],
     mouse.press(button="left")
     sleep(.5)
     mouse.release(button="left")
-    for i in range(5):
+    while moving_average_1.samples() < 5:
         sleep(0.1)
         points = __point_pos(screen_grabber())
-        if len(points) < 2:
-            print("not enough points")
+        if not ensure_count(points, 2):
             continue
         moving_average_1.add_point(points[0])
         moving_average_2.add_point(points[1])
     def debouce(ma_1: MovingAveragePoint, ma_2: MovingAveragePoint):
         out = True
         points = __point_pos(screen_grabber())
-        if len(points) < 2:
-            print("not enough points")
+        if not ensure_count(points, 2):
             return False
         if not ma_1.debounce(points[0]):
             out = False
         if not ma_2.debounce(points[1]):
             out = False
         return out
+    debug = False
     while not debouce(moving_average_1, moving_average_2):
         sleep(0.1)
-        points = __point_pos(screen_grabber())
-        if len(points) < 2:
-            print("not enough points")
+        points = __point_pos(screen_grabber(), debug)
+        if not ensure_count(points, 2):
+            debug = True
             continue
         moving_average_1.add_point(points[0])
         moving_average_2.add_point(points[1])

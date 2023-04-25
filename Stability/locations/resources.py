@@ -25,6 +25,15 @@ def sort_points(keypoints) -> Tuple:
     points.sort(key=lambda x: x[0])
     return tuple(points)
 
+def ensure_count(keypoints, wanted) -> bool:
+    if len(keypoints) > wanted:
+        print(f"too many points {len(keypoints)}")
+        return False
+    if len(keypoints) < wanted:
+        print(f"not enough points {len(keypoints)}")
+        return False
+    return True
+
 class MovingAveragePoint:
     def __init__(self, entries) -> None:
         self.entries = entries
