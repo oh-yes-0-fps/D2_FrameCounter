@@ -14,7 +14,7 @@ def normalize_point(point: tuple[int, int], screen_dimensions: Tuple[int, int]) 
 def __sub_calc(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[float, float]:
     p1_n = normalize_point(p1, (SCREEN_WIDTH_PX, SCREEN_WIDTH_PX))
     p2_n = normalize_point(p2, (SCREEN_WIDTH_PX, SCREEN_WIDTH_PX))
-    pc_n = (SCREEN_WIDTH/2/SCREEN_WIDTH, SCREEN_HEIGHT/2/SCREEN_WIDTH)#normalized center point
+    pc_n = (SCREEN_WIDTH_PX/2/SCREEN_WIDTH_PX, SCREEN_HEIGHT_PX/2/SCREEN_WIDTH_PX)#normalized center point
 
     slope = (p2_n[1] - p1_n[1])/(p2_n[0] - p1_n[0])
 
@@ -31,7 +31,7 @@ def __sub_calc(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[float, float]:
     yc_shifted = rotated_p1_y-rotated_pc_y
     dist = abs(rotated_p2_x-rotated_p1_x)
     dist_x12 = (rotated_p2_x+rotated_p1_x)/2
-    
+
     xc_shift = rotated_pc_x-dist_x12
 
     xc_scale = xc_shift/dist

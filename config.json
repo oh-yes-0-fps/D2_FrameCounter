@@ -1,6 +1,6 @@
 {
-    "screenHeight": 1440,
-    "screenWidth": 2560,
+    "guiScreenHeight": 720,
+    "guiScreenWidth": 1280,
     "heightOffset": 617,
     "widthOffset": 333,
     "fire_bind": "=",

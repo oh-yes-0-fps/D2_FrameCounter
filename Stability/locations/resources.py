@@ -11,7 +11,7 @@ def verify_points(data: Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]) -> 
     for i in range(len(data[0])):
         p1 = data[0][i]
         p2 = data[1][i]
-        dists.append(dist_of_2_points(p1, p2))
+        dists.append(dist_of_2_points(p1, p2)) # type: ignore
     avg_dist = sum(dists)/len(dists)
     for dist in dists:
         if abs(dist-avg_dist) > avg_dist*0.05:
