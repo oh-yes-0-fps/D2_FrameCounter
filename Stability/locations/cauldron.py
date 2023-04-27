@@ -3,7 +3,7 @@ import numpy as np
 from time import sleep
 from Stability.locations.resources import *
 from typing import Callable, List, Tuple
-import mouse
+import pynput.mouse as mouse
 
 def __point_pos(screen: np.ndarray, debug = False):
     if len(screen.shape) < 3:
@@ -65,9 +65,9 @@ def test(screen_grabber: Callable[[], np.ndarray]) -> Tuple[List[Tuple[int, int]
     moving_average_1.clear()
     moving_average_2.clear()
     moving_average_3.clear()
-    mouse.press(button="left")
+    mouse.Controller.press(mouse.Button.left) # type: ignore
     sleep(.5)
-    mouse.release(button="left")
+    mouse.Controller.release(mouse.Button.left) # type: ignore
     for i in range(5):
         sleep(0.1)
         points = __point_pos(screen_grabber())
