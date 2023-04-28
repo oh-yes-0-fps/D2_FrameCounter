@@ -45,7 +45,8 @@ class GuiParent:
             keep_on_top=True,
             finalize=True,
             icon='icon.ico',
-            relative_location=((SCREEN_WIDTH//3), (-SCREEN_HEIGHT//2.7)),
+            # relative_location=((SCREEN_WIDTH//3), (-SCREEN_HEIGHT//2.7)),
+            relative_location=((SCREEN_WIDTH//2.31), (-SCREEN_HEIGHT//2.11)),
             background_color="#472b62",
             button_color=("#ffe7d1", "#4b8e8d"),
             element_justification="center",
@@ -96,10 +97,6 @@ class GuiParent:
             except KeyError:
                 pass
         return False
-
-    def set_script_idx(self, idx: int):
-        self.window.start_thread
-        self.c_script_idx = idx
 
     def close(self):
         self.window.close()
